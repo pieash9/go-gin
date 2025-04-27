@@ -22,30 +22,25 @@ type Note struct {
 	Name string `json:"name"`
 }
 
-func (n *NotesServices) GetNotes() []Note {
-	data := []Note{
-		{
-			Id:   1,
-			Name: "Note 1",
-		},
-		{
-			Id:   2,
-			Name: "Note 2",
-		},
+func (n *NotesServices) GetNotes(status bool, order string) ([]*model.Notes, error) {
+	var notes []*model.Notes
+
+	if err := n.db.Where("status = ?", status).Order("id " + order).Find(&notes).Error; err != nil {
+		return nil, err
 	}
-	return data
+	return notes, nil
 }
 
-func (n *NotesServices) CreateNote() string {
-	err := n.db.Create(&model.Notes{
-		Id:     1,
-		Title:  "TEST 1",
-		Status: true,
-	})
-
-	if err != nil {
-		fmt.Println(err)
+func (n *NotesServices) CreateNote(title string, status bool) (*model.Notes, error) {
+	note := &model.Notes{
+		Title:  title,
+		Status: status,
 	}
 
-	return "Notes created."
+	if err := n.db.Create(note).Error; err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return note, nil
 }
