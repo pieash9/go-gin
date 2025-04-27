@@ -5,11 +5,11 @@ import (
 	"github.com/pieash9/go-gin/services"
 )
 
-type NotestsController struct {
-	notesService services.NotesServices
+type NotesController struct {
+	NotesService *services.NotesServices
 }
 
-func (n *NotestsController) InitNotesController(router *gin.Engine) {
+func (n *NotesController) InitNotesController(router *gin.Engine) {
 	notes := router.Group("/notes")
 
 	notes.GET("/", n.GetNotes())
@@ -17,13 +17,13 @@ func (n *NotestsController) InitNotesController(router *gin.Engine) {
 	notes.POST("/", n.CreateNote())
 }
 
-func (n *NotestsController) GetNotes() gin.HandlerFunc {
+func (n *NotesController) GetNotes() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.JSON(200, gin.H{"message": n.notesService.GetNotes()})
+		c.JSON(200, gin.H{"message": n.NotesService.GetNotes()})
 	}
 }
-func (n *NotestsController) CreateNote() gin.HandlerFunc {
+func (n *NotesController) CreateNote() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.JSON(200, gin.H{"message": n.notesService.CreateNote()})
+		c.JSON(200, gin.H{"message": n.NotesService.CreateNote()})
 	}
 }
