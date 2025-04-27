@@ -25,7 +25,7 @@ func main() {
 	notesController := &controllers.NotesController{
 		NotesService: notesService, // 🛠 Inject the service properly
 	}
-	notesController.InitNotesController(router)
+	notesController.InitNotesController(router, *notesService)
 
 	router.Run(":5000")
 }

@@ -1,6 +1,8 @@
 package services
 
 import (
+	"fmt"
+
 	"github.com/pieash9/go-gin/internal/model"
 	"gorm.io/gorm"
 )
@@ -35,5 +37,15 @@ func (n *NotesServices) GetNotes() []Note {
 }
 
 func (n *NotesServices) CreateNote() string {
-	return "POST request notes."
+	err := n.db.Create(&model.Notes{
+		Id:     1,
+		Title:  "TEST 1",
+		Status: true,
+	})
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	return "Notes created."
 }
