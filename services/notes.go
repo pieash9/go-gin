@@ -31,6 +31,15 @@ func (n *NotesServices) GetNotes(status bool, order string) ([]*model.Notes, err
 	return notes, nil
 }
 
+func (n *NotesServices) GetNote(id int) (*model.Notes, error) {
+	var note *model.Notes
+
+	if err := n.db.Where("id = ?", id).Find(&note).Error; err != nil {
+		return nil, err
+	}
+	return note, nil
+}
+
 func (n *NotesServices) GetAllNotes(order string) ([]*model.Notes, error) {
 	var notes []*model.Notes
 

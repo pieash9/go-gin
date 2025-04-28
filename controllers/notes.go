@@ -12,14 +12,23 @@ type NotesController struct {
 	NotesService *services.NotesServices
 }
 
-func (n *NotesController) InitNotesController(router *gin.Engine, notesService services.NotesServices) {
+func (n *NotesController) InitController(notesService services.NotesServices) *NotesController {
+
+	// return &NotesController{
+	// 	NotesService: &notesService,
+	// }
+	n.NotesService = &notesService
+	return n
+}
+
+func (n *NotesController) InitRoutes(router *gin.Engine) {
 	notes := router.Group("/notes")
 
 	notes.GET("/", n.GetNotes())
+	notes.GET("/:id", n.GetNote())
 	notes.POST("/", n.CreateNote())
 	notes.PUT("/", n.UpdateNote())
 	notes.DELETE("/:id", n.DeleteNote())
-	n.NotesService = &notesService
 }
 
 func (n *NotesController) GetNotes() gin.HandlerFunc {
@@ -56,6 +65,32 @@ func (n *NotesController) GetNotes() gin.HandlerFunc {
 		}
 
 		c.JSON(200, gin.H{"notes": notes})
+	}
+}
+
+func (n *NotesController) GetNote() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		idParam := c.Param("id")
+		id, err := strconv.Atoi(idParam)
+
+		if err != nil {
+			c.JSON(400, gin.H{
+				"message": err.Error(),
+			})
+			return
+		}
+
+		var note *model.Notes
+
+		note, err = n.NotesService.GetNote(id)
+		if err != nil {
+			c.JSON(400, gin.H{
+				"message": err.Error(),
+			})
+			return
+		}
+
+		c.JSON(200, gin.H{"notes": note})
 	}
 }
 
