@@ -28,7 +28,9 @@ func main() {
 	notesController.InitController(*notesService)
 	notesController.InitRoutes(router)
 
-	authController := controllers.InitAuthController()
+	authService := services.InitAuthService(db)
+
+	authController := controllers.InitAuthController(authService)
 	authController.InitRoutes(router)
 
 	router.Run(":5000")
