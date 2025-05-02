@@ -18,6 +18,20 @@ func InitAuthService(db *gorm.DB) *AuthService {
 	}
 }
 
+func (a *AuthService) CheckUserExistOrNot(email string) bool {
+	var user model.User
+
+	if err := a.db.Where("email=?", email).Find(&user).Error; err != nil {
+		return false
+	}
+
+	if user.Email != "" {
+		return true
+	}
+
+	return false
+}
+
 func (a *AuthService) Login(email *string, password *string) (*model.User, error) {
 	if email == nil {
 		return nil, errors.New("email is required")
@@ -32,6 +46,10 @@ func (a *AuthService) Login(email *string, password *string) (*model.User, error
 		return nil, err
 	}
 
+	if user.Email == "" {
+		return nil, errors.New("user not found with this email")
+	}
+
 	return &user, nil
 }
 
@@ -41,6 +59,10 @@ func (a *AuthService) Register(email *string, password *string) (*model.User, er
 	}
 	if password == nil {
 		return nil, errors.New("password is required")
+	}
+
+	if a.CheckUserExistOrNot(*email) {
+		return nil, errors.New("user already exist with this email")
 	}
 
 	var user model.User
