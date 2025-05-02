@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/pieash9/go-gin/internal/model"
+	"github.com/pieash9/go-gin/internal/utils"
 	"gorm.io/gorm"
 )
 
@@ -42,8 +43,12 @@ func (a *AuthService) Login(email *string, password *string) (*model.User, error
 
 	var user model.User
 
-	if err := a.db.Where("email=?", email).Where("password=?", password).Find(&user).Error; err != nil {
+	if err := a.db.Where("email=?", email).Find(&user).Error; err != nil {
 		return nil, err
+	}
+
+	if !utils.CheckPasswordHash(*password, user.Password) {
+		return nil, errors.New("invalid password")
 	}
 
 	if user.Email == "" {
@@ -65,10 +70,15 @@ func (a *AuthService) Register(email *string, password *string) (*model.User, er
 		return nil, errors.New("user already exist with this email")
 	}
 
+	hashedPassword, err := utils.HashPassword(*password)
+	if err != nil {
+		return nil, err
+	}
+
 	var user model.User
 
 	user.Email = *email
-	user.Password = *password
+	user.Password = hashedPassword
 
 	if err := a.db.Create(&user).Find(&user).Error; err != nil {
 		return nil, err
