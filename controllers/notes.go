@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/pieash9/go-gin/internal/middleware"
 	"github.com/pieash9/go-gin/internal/model"
 	"github.com/pieash9/go-gin/services"
 )
@@ -23,6 +24,8 @@ func (n *NotesController) InitController(notesService services.NotesServices) *N
 
 func (n *NotesController) InitRoutes(router *gin.Engine) {
 	notes := router.Group("/notes")
+
+	notes.Use(middleware.CheckMiddleware)
 
 	notes.GET("/", n.GetNotes())
 	notes.GET("/:id", n.GetNote())

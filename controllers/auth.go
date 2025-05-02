@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/pieash9/go-gin/internal/utils"
 	"github.com/pieash9/go-gin/services"
 )
 
@@ -66,20 +67,30 @@ func (a *AuthController) Login() gin.HandlerFunc {
 		var registerBody RegisterBody
 		if err := c.BindJSON(&registerBody); err != nil {
 			c.JSON(400, gin.H{
-				"message": err.Error(),
+				"error": err.Error(),
 			})
 			return
 		}
 		user, err := a.authService.Login(&registerBody.Email, &registerBody.Password)
 		if err != nil {
 			c.JSON(400, gin.H{
-				"message": err.Error(),
+				"error": err.Error(),
+			})
+			return
+		}
+
+		var token string
+		token, err = utils.GenerateToken(user.Email, user.Id)
+		if err != nil {
+			c.JSON(400, gin.H{
+				"error": err.Error(),
 			})
 			return
 		}
 
 		c.JSON(200, gin.H{
 			"message": user,
+			"token":   token,
 		})
 	}
 }
